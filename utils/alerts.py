@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Optional, Callable
 import winsound
 
+from utils.i18n import t
+
 
 class AlertManager:
     """Manages visual and audio alerts."""
@@ -20,8 +22,11 @@ class AlertManager:
         self.on_popup = on_popup  # Callback for popup display
         self._sound_thread: Optional[threading.Thread] = None
 
-    def trigger_alert(self, message: str = "손이 머리 근처에 있습니다!") -> None:
+    def trigger_alert(self, message: Optional[str] = None) -> None:
         """Trigger both sound and popup alerts."""
+        if message is None:
+            message = t('alert_message')
+
         if self.sound_enabled:
             self._play_sound()
 

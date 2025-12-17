@@ -17,6 +17,7 @@ class AppConfig:
     # Alert settings
     sound_enabled: bool = True
     popup_enabled: bool = True
+    fullscreen_alert: bool = False  # Fullscreen alert for stronger feedback
 
     # App settings
     auto_start: bool = False
@@ -26,6 +27,9 @@ class AppConfig:
     # Window settings
     window_width: int = 800
     window_height: int = 600
+
+    # Language settings
+    language: str = ""  # Empty string means auto-detect from system
 
 
 class Config:

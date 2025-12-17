@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-"""PyInstaller spec file for Don't Touch application."""
+"""PyInstaller spec file for Don't Touch installer build (folder mode)."""
 
 import sys
 from pathlib import Path
@@ -12,6 +12,7 @@ project_root = Path(SPECPATH)
 # Data files to include
 datas = [
     (str(project_root / 'assets'), 'assets'),
+    (str(project_root / 'locales'), 'locales'),
 ]
 
 # Hidden imports for MediaPipe and other dependencies
@@ -50,20 +51,17 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
+# Folder-based EXE (not single file) for installer
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    [],
+    [],  # Don't bundle binaries into exe
+    exclude_binaries=True,  # Keep binaries separate
     name='DontTouch',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,  # No console window
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -71,4 +69,16 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=str(project_root / 'assets' / 'icon.ico') if (project_root / 'assets' / 'icon.ico').exists() else None,
+)
+
+# Collect all files into a folder
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='DontTouch',
 )

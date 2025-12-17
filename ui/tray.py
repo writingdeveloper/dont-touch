@@ -1,8 +1,15 @@
 """System tray functionality."""
 import threading
+from pathlib import Path
 from typing import Callable, Optional
 from PIL import Image, ImageDraw
 import pystray
+
+from utils.i18n import t
+
+
+# Path to the app icon
+APP_ICON_PATH = Path(__file__).parent.parent / "assets" / "icon.ico"
 
 
 class SystemTray:
@@ -20,8 +27,26 @@ class SystemTray:
         self._thread: Optional[threading.Thread] = None
         self._is_monitoring = False
 
-    def _create_icon_image(self, color: str = "green") -> Image.Image:
-        """Create a simple icon image."""
+    def _load_app_icon(self) -> Image.Image:
+        """Load the application icon from file."""
+        try:
+            if APP_ICON_PATH.exists():
+                # Load ico file and get the best size for tray (usually 64x64 or 32x32)
+                icon = Image.open(APP_ICON_PATH)
+                # Convert to RGBA if needed
+                if icon.mode != 'RGBA':
+                    icon = icon.convert('RGBA')
+                # Resize to standard tray icon size
+                icon = icon.resize((64, 64), Image.Resampling.LANCZOS)
+                return icon
+        except Exception as e:
+            print(f"Failed to load app icon: {e}")
+
+        # Fallback to generated icon
+        return self._create_fallback_icon()
+
+    def _create_fallback_icon(self, color: str = "green") -> Image.Image:
+        """Create a fallback icon image if app icon is not available."""
         size = 64
         image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
@@ -46,13 +71,13 @@ class SystemTray:
 
     def _create_menu(self) -> pystray.Menu:
         """Create the tray menu."""
-        toggle_text = "모니터링 중지" if self._is_monitoring else "모니터링 시작"
+        toggle_text = t('tray_stop') if self._is_monitoring else t('tray_start')
 
         return pystray.Menu(
-            pystray.MenuItem("열기", self._on_show_click, default=True),
+            pystray.MenuItem(t('tray_open'), self._on_show_click, default=True),
             pystray.MenuItem(toggle_text, self._on_toggle_click),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("종료", self._on_quit_click)
+            pystray.MenuItem(t('tray_exit'), self._on_quit_click)
         )
 
     def _on_show_click(self, icon, item) -> None:
@@ -84,8 +109,8 @@ class SystemTray:
 
         self._icon = pystray.Icon(
             "dont-touch",
-            self._create_icon_image(),
-            "Don't Touch - 발모벽 감지",
+            self._load_app_icon(),
+            t('tray_tooltip'),
             menu=self._create_menu()
         )
 
@@ -104,21 +129,27 @@ class SystemTray:
         self._is_monitoring = is_monitoring
 
         if self._icon:
-            color = "green" if is_monitoring else "gray"
-            self._icon.icon = self._create_icon_image(color)
+            # Always use app icon, just update menu
+            self._icon.icon = self._load_app_icon()
             self._update_menu()
 
     def set_alert_state(self) -> None:
         """Set icon to alert state (red)."""
-        if self._icon:
-            self._icon.icon = self._create_icon_image("red")
+        # Keep using app icon for consistency
+        pass
 
     def set_detecting_state(self) -> None:
         """Set icon to detecting state (yellow)."""
-        if self._icon:
-            self._icon.icon = self._create_icon_image("yellow")
+        # Keep using app icon for consistency
+        pass
 
     def show_notification(self, title: str, message: str) -> None:
         """Show a system notification."""
         if self._icon:
             self._icon.notify(message, title)
+
+    def update_language(self) -> None:
+        """Update tray menu text after language change."""
+        if self._icon:
+            self._icon.title = t('tray_tooltip')
+            self._update_menu()

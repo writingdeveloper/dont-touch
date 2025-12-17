@@ -30,8 +30,12 @@ MANIFEST
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
-# Keep build.spec for this project
-!build.spec
+
+# Installer output
+installer_output/
+
+# Claude Code local settings
+.claude/settings.local.json
 
 # Installer logs
 pip-log.txt

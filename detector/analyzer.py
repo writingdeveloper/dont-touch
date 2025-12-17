@@ -7,6 +7,7 @@ from enum import Enum
 
 from .hand_tracker import HandLandmarks
 from .pose_tracker import HeadRegion
+from utils.i18n import t
 
 
 class AlertState(Enum):
@@ -51,10 +52,19 @@ class ProximityAnalyzer:
         self._proximity_start_time: Optional[float] = None
         self._cooldown_start_time: Optional[float] = None
         self._alert_callback: Optional[callable] = None
+        self._statistics_callback: Optional[callable] = None
+        self._min_distance_during_detection: float = 1.0
 
     def set_alert_callback(self, callback: callable) -> None:
         """Set callback to be called when alert triggers."""
         self._alert_callback = callback
+
+    def set_statistics_callback(self, callback: callable) -> None:
+        """Set callback to be called for statistics logging.
+
+        Callback receives: (duration: float, closest_distance: float)
+        """
+        self._statistics_callback = callback
 
     def set_thresholds(self,
                        distance_threshold: Optional[float] = None,
@@ -97,7 +107,7 @@ class ProximityAnalyzer:
                         proximity_duration=0,
                         closest_distance=1.0,
                         time_until_alert=0,
-                        message=f"대기 중... ({remaining:.1f}초)"
+                        message=t('analyzer_cooldown').replace("{remaining:.1f}", f"{remaining:.1f}")
                     )
 
         # No head detected
@@ -109,7 +119,7 @@ class ProximityAnalyzer:
                 proximity_duration=0,
                 closest_distance=1.0,
                 time_until_alert=self.trigger_time,
-                message="얼굴을 감지할 수 없습니다"
+                message=t('analyzer_no_face')
             )
 
         # No hands detected
@@ -121,7 +131,7 @@ class ProximityAnalyzer:
                 proximity_duration=0,
                 closest_distance=1.0,
                 time_until_alert=self.trigger_time,
-                message="모니터링 중..."
+                message=t('analyzer_monitoring')
             )
 
         # Calculate distances
@@ -133,20 +143,26 @@ class ProximityAnalyzer:
             if self._proximity_start_time is None:
                 self._proximity_start_time = current_time
                 self._state = AlertState.DETECTING
+                self._min_distance_during_detection = closest_distance
+            else:
+                # Track minimum distance during this detection period
+                self._min_distance_during_detection = min(
+                    self._min_distance_during_detection, closest_distance
+                )
 
             duration = current_time - self._proximity_start_time
             time_until_alert = max(0, self.trigger_time - duration)
 
             # Check if should trigger alert
             if duration >= self.trigger_time:
-                self._trigger_alert()
+                self._trigger_alert(duration)
                 return AnalysisResult(
                     state=AlertState.ALERT,
                     is_hand_near_head=True,
                     proximity_duration=duration,
                     closest_distance=closest_distance,
                     time_until_alert=0,
-                    message="⚠️ 경고! 손이 머리 근처에 있습니다!"
+                    message=t('analyzer_warning')
                 )
 
             return AnalysisResult(
@@ -155,7 +171,7 @@ class ProximityAnalyzer:
                 proximity_duration=duration,
                 closest_distance=closest_distance,
                 time_until_alert=time_until_alert,
-                message=f"감지 중... ({time_until_alert:.1f}초 후 경고)"
+                message=t('analyzer_detecting').replace("{time_until_alert:.1f}", f"{time_until_alert:.1f}")
             )
         else:
             # Hand moved away
@@ -166,7 +182,7 @@ class ProximityAnalyzer:
                 proximity_duration=0,
                 closest_distance=closest_distance,
                 time_until_alert=self.trigger_time,
-                message="모니터링 중..."
+                message=t('analyzer_monitoring')
             )
 
     def _calculate_closest_distance(self,
@@ -206,11 +222,18 @@ class ProximityAnalyzer:
 
         return min_distance
 
-    def _trigger_alert(self) -> None:
+    def _trigger_alert(self, duration: float) -> None:
         """Trigger alert and start cooldown."""
         self._state = AlertState.COOLDOWN
         self._cooldown_start_time = time.time()
         self._proximity_start_time = None
+
+        # Log to statistics
+        if self._statistics_callback:
+            self._statistics_callback(duration, self._min_distance_during_detection)
+
+        # Reset min distance tracking
+        self._min_distance_during_detection = 1.0
 
         if self._alert_callback:
             self._alert_callback()
