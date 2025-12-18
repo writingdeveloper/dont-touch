@@ -39,7 +39,20 @@ Using your webcam, it tracks hand movements in real-time and alerts you when you
 - Easy uninstall via Control Panel
 - Automatic updates notification
 
-> ⚠️ Windows SmartScreen warning may appear on first run. Click "More info" → "Run anyway".
+> ⚠️ **Windows Security Warning**
+>
+> Since this app is not yet code-signed, Windows may display a security warning:
+>
+> **Windows SmartScreen:**
+> 1. Click "More info"
+> 2. Click "Run anyway"
+>
+> **Windows 11 Smart App Control:**
+> - If Smart App Control is enabled in "Evaluation" or "On" mode, the app may be blocked
+> - Temporarily disable Smart App Control: Settings → Privacy & Security → Windows Security → App & Browser Control → Smart App Control → Off
+> - Re-enable after installation if desired
+>
+> 🔐 **Code Signing Coming Soon**: We plan to implement code signing through [SignPath](https://signpath.io) for open-source projects to eliminate these warnings in future releases.
 
 ### Requirements
 
