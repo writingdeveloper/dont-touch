@@ -9,8 +9,10 @@ Don't Touch is a desktop application for detecting and warning users when their 
 ## Development Commands
 
 ```bash
-# Run the application (requires Python 3.12.7)
-python main.py
+# Run the application (requires Python 3.12.7, uses venv)
+run.bat
+# Or manually:
+# venv\Scripts\activate && python main.py
 
 # Build installer (requires Inno Setup 6)
 build_installer.bat

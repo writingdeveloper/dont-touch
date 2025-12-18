@@ -35,6 +35,7 @@
   "alert_subtitle": "请放下手",
   "alert_message": "手部靠近头部！",
   "fullscreen_alert_dismiss": "点击或按任意键关闭",
+  "fullscreen_alert_move_hand": "⚠️ 请先将手从脸上移开！",
 
   "analyzer_cooldown": "等待中... ({remaining:.1f}秒)",
   "analyzer_no_face": "无法检测到脸部",
@@ -55,6 +56,7 @@
   "settings_app": "应用设置",
   "settings_autostart": "Windows启动时自动运行",
   "settings_start_minimized": "启动时最小化",
+  "settings_auto_start_detection": "启动应用时自动开始检测",
   "settings_frame_skip": "跳帧:",
   "settings_frame_skip_help": "(越高CPU占用越低，反应越慢)",
   "settings_language": "语言设置",
@@ -112,7 +114,10 @@
   "day_sat": "六",
 
   "preview_label": "预览",
-  "preview_off_message": "📷 预览已关闭\n(检测仍在运行)",
+  "preview_off_status": "检测运行中",
+  "preview_off_message": "预览已关闭",
+  "preview_off_hint": "关闭显示以减少CPU使用。\n检测在后台继续运行。",
+  "preview_tooltip": "💡 切换预览\n\n隐藏摄像头画面，检测继续运行。\n适合节省笔记本电池或\n进行其他工作时使用。",
 
   "about_title": "关于",
   "about_version": "版本",
@@ -130,6 +135,13 @@
   "about_links_title": "链接",
   "about_github": "GitHub",
   "about_report_issue": "报告问题",
+  "about_privacy_title": "隐私保护",
+  "about_privacy_notice": "本应用程序尊重您的隐私。",
+  "about_privacy_1": "摄像头画面仅在本地实时处理，不会存储或传输。",
+  "about_privacy_2": "不收集任何个人信息、视频数据或用户数据。",
+  "about_privacy_3": "所有统计数据仅存储在您的本地设备上。",
+  "about_privacy_4": "网络连接仅用于检查更新（可选）。",
+
   "about_license_title": "许可证",
   "about_license": "本项目基于MIT许可证发布。",
   "about_copyright": "© 2024 Don't Touch. 保留所有权利。",
@@ -142,5 +154,20 @@
   "update_check_failed": "更新检查失败",
   "update_new_version": "新版本可用: {version}",
   "update_up_to_date": "已是最新版本",
-  "update_download": "下载"
+  "update_download": "下载",
+
+  "loading_message": "加载中...",
+  "loading_step_init": "正在初始化...",
+  "loading_step_config": "正在加载配置...",
+  "loading_step_camera": "正在准备摄像头模块...",
+  "loading_step_ai": "正在加载AI模型...",
+  "loading_step_ui": "正在构建界面...",
+  "loading_step_ready": "准备就绪！",
+  "loading_step_complete": "正在启动！",
+
+  "close_dialog_title": "关闭确认",
+  "close_dialog_message": "您想怎么做？",
+  "close_dialog_minimize": "最小化",
+  "close_dialog_exit": "退出",
+  "close_dialog_cancel": "取消"
 }

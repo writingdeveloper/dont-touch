@@ -2,9 +2,13 @@
 import customtkinter as ctk
 import webbrowser
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
+from PIL import Image
 
 from utils.i18n import t
+
+APP_ICON_PATH = Path(__file__).parent.parent / "assets" / "icon.ico"
 from utils.updater import (
     check_for_updates_async,
     UpdateInfo,
@@ -25,12 +29,29 @@ class AboutWindow(ctk.CTkToplevel):
 
         # Window setup
         self.title(t('about_title'))
-        self.geometry("450x550")
+        self.geometry("450x750")
         self.resizable(False, False)
+
+        # Set window icon
+        if APP_ICON_PATH.exists():
+            self.after(200, lambda: self.iconbitmap(str(APP_ICON_PATH)))
 
         # Make modal
         self.transient(parent)
         self.grab_set()
+
+        # Load app icon image for display
+        self._app_icon_image = None
+        if APP_ICON_PATH.exists():
+            try:
+                icon_img = Image.open(APP_ICON_PATH)
+                self._app_icon_image = ctk.CTkImage(
+                    light_image=icon_img,
+                    dark_image=icon_img,
+                    size=(80, 80)
+                )
+            except Exception:
+                pass
 
         # Build UI
         self._create_ui()
@@ -52,11 +73,18 @@ class AboutWindow(ctk.CTkToplevel):
         main_frame.grid_columnconfigure(0, weight=1)
 
         # App icon and title
-        icon_label = ctk.CTkLabel(
-            main_frame,
-            text="🛡️",
-            font=ctk.CTkFont(size=64)
-        )
+        if self._app_icon_image:
+            icon_label = ctk.CTkLabel(
+                main_frame,
+                text="",
+                image=self._app_icon_image
+            )
+        else:
+            icon_label = ctk.CTkLabel(
+                main_frame,
+                text="🛡️",
+                font=ctk.CTkFont(size=64)
+            )
         icon_label.grid(row=0, column=0, pady=(10, 5))
 
         title_label = ctk.CTkLabel(
@@ -82,10 +110,11 @@ class AboutWindow(ctk.CTkToplevel):
             main_frame,
             text=t('about_description'),
             font=ctk.CTkFont(size=13),
-            wraplength=380,
-            justify="left"
+            wraplength=360,
+            justify="left",
+            anchor="w"
         )
-        desc_label.grid(row=4, column=0, sticky="w", padx=10, pady=(5, 15))
+        desc_label.grid(row=4, column=0, sticky="ew", padx=5, pady=(5, 15))
 
         # Features section
         self._create_section_header(main_frame, t('about_features_title'), 5)
@@ -127,7 +156,6 @@ class AboutWindow(ctk.CTkToplevel):
                 tech_item,
                 text=name,
                 font=ctk.CTkFont(size=12, weight="bold"),
-                width=120,
                 anchor="w"
             )
             name_label.pack(side="left", padx=10, pady=5)
@@ -187,8 +215,41 @@ class AboutWindow(ctk.CTkToplevel):
         )
         self.update_status_label.grid(row=2, column=0, columnspan=2, pady=(5, 0))
 
+        # Privacy section
+        self._create_section_header(main_frame, t('about_privacy_title'), 11)
+
+        privacy_frame = ctk.CTkFrame(main_frame, fg_color=("gray90", "gray17"), corner_radius=8)
+        privacy_frame.grid(row=12, column=0, sticky="ew", padx=5, pady=(5, 15))
+
+        privacy_notice = ctk.CTkLabel(
+            privacy_frame,
+            text=t('about_privacy_notice'),
+            font=ctk.CTkFont(size=12, weight="bold"),
+            text_color=("gray20", "gray80")
+        )
+        privacy_notice.pack(anchor="w", padx=10, pady=(10, 5))
+
+        privacy_items = [
+            t('about_privacy_1'),
+            t('about_privacy_2'),
+            t('about_privacy_3'),
+            t('about_privacy_4'),
+        ]
+
+        privacy_text = "\n".join([f"• {item}" for item in privacy_items])
+        privacy_details = ctk.CTkLabel(
+            privacy_frame,
+            text=privacy_text,
+            font=ctk.CTkFont(size=11),
+            justify="left",
+            anchor="w",
+            text_color=("gray40", "gray60"),
+            wraplength=350
+        )
+        privacy_details.pack(anchor="w", padx=10, pady=(0, 10))
+
         # License section
-        self._create_section_header(main_frame, t('about_license_title'), 11)
+        self._create_section_header(main_frame, t('about_license_title'), 13)
 
         license_label = ctk.CTkLabel(
             main_frame,
@@ -196,7 +257,7 @@ class AboutWindow(ctk.CTkToplevel):
             font=ctk.CTkFont(size=12),
             text_color="gray"
         )
-        license_label.grid(row=12, column=0, sticky="w", padx=10, pady=(5, 15))
+        license_label.grid(row=14, column=0, sticky="w", padx=10, pady=(5, 15))
 
         # Copyright (dynamic year)
         current_year = datetime.now().year
@@ -207,14 +268,13 @@ class AboutWindow(ctk.CTkToplevel):
             font=ctk.CTkFont(size=11),
             text_color="gray"
         )
-        copyright_label.grid(row=13, column=0, pady=(10, 5))
+        copyright_label.grid(row=15, column=0, pady=(10, 5))
 
         # Close button
         close_btn = ctk.CTkButton(
             self,
             text=t('about_close'),
-            command=self.destroy,
-            width=120
+            command=self.destroy
         )
         close_btn.grid(row=1, column=0, pady=15)
 

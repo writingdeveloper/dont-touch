@@ -1,10 +1,13 @@
 """Settings window UI."""
 import customtkinter as ctk
+from pathlib import Path
 from typing import Callable, Optional
 
 from utils import Config
 from utils.startup import StartupManager
 from utils.i18n import t, get_language, set_language, get_supported_languages, SUPPORTED_LANGUAGES
+
+APP_ICON_PATH = Path(__file__).parent.parent / "assets" / "icon.ico"
 
 
 class SettingsWindow(ctk.CTkToplevel):
@@ -23,8 +26,12 @@ class SettingsWindow(ctk.CTkToplevel):
 
         # Window setup
         self.title(t('settings_title'))
-        self.geometry("400x650")
-        self.resizable(False, False)
+        self.geometry("450x680")
+        self.minsize(400, 600)
+
+        # Set window icon
+        if APP_ICON_PATH.exists():
+            self.after(200, lambda: self.iconbitmap(str(APP_ICON_PATH)))
 
         # Make modal
         self.transient(parent)
@@ -166,9 +173,18 @@ class SettingsWindow(ctk.CTkToplevel):
         )
         start_min_check.grid(row=11, column=0, sticky="w", padx=10, pady=5)
 
+        # Auto start detection
+        self.auto_start_detection_var = ctk.BooleanVar(value=self.settings.auto_start_detection)
+        auto_start_detection_check = ctk.CTkCheckBox(
+            main_frame,
+            text=t('settings_auto_start_detection'),
+            variable=self.auto_start_detection_var
+        )
+        auto_start_detection_check.grid(row=12, column=0, sticky="w", padx=10, pady=5)
+
         # Frame skip
         frameskip_frame = ctk.CTkFrame(main_frame)
-        frameskip_frame.grid(row=12, column=0, sticky="ew", pady=5)
+        frameskip_frame.grid(row=13, column=0, sticky="ew", pady=5)
         frameskip_frame.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(frameskip_frame, text=t('settings_frame_skip')).grid(row=0, column=0, padx=10, pady=5)
@@ -191,14 +207,14 @@ class SettingsWindow(ctk.CTkToplevel):
             font=ctk.CTkFont(size=11),
             text_color="gray"
         )
-        help_text.grid(row=13, column=0, sticky="w", padx=10)
+        help_text.grid(row=14, column=0, sticky="w", padx=10)
 
         # Language Settings Section
-        self._create_section_header(main_frame, t('settings_language'), 14)
+        self._create_section_header(main_frame, t('settings_language'), 15)
 
         # Language selector
         lang_frame = ctk.CTkFrame(main_frame)
-        lang_frame.grid(row=15, column=0, sticky="ew", pady=5)
+        lang_frame.grid(row=16, column=0, sticky="ew", pady=5)
         lang_frame.grid_columnconfigure(1, weight=1)
 
         ctk.CTkLabel(lang_frame, text=t('settings_language_label')).grid(row=0, column=0, padx=10, pady=5)
@@ -222,9 +238,9 @@ class SettingsWindow(ctk.CTkToplevel):
             lang_frame,
             variable=self.language_var,
             values=self._lang_options,
-            width=200
+            dynamic_resizing=True
         )
-        self.language_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+        self.language_dropdown.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
 
         # Button frame
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -237,7 +253,7 @@ class SettingsWindow(ctk.CTkToplevel):
             text=t('settings_reset'),
             command=self._reset_settings
         )
-        reset_btn.grid(row=0, column=0, padx=5)
+        reset_btn.grid(row=0, column=0, padx=5, sticky="ew")
 
         # Cancel button
         cancel_btn = ctk.CTkButton(
@@ -245,7 +261,7 @@ class SettingsWindow(ctk.CTkToplevel):
             text=t('settings_cancel'),
             command=self.destroy
         )
-        cancel_btn.grid(row=0, column=1, padx=5)
+        cancel_btn.grid(row=0, column=1, padx=5, sticky="ew")
 
         # Save button
         save_btn = ctk.CTkButton(
@@ -253,7 +269,7 @@ class SettingsWindow(ctk.CTkToplevel):
             text=t('settings_save'),
             command=self._save_settings
         )
-        save_btn.grid(row=0, column=2, padx=5)
+        save_btn.grid(row=0, column=2, padx=5, sticky="ew")
 
     def _create_section_header(self, parent: ctk.CTkFrame, text: str, row: int) -> None:
         """Create a section header."""
@@ -293,6 +309,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.fullscreen_alert_var.set(defaults.fullscreen_alert)
         self.auto_start_var.set(defaults.auto_start)
         self.start_minimized_var.set(defaults.start_minimized)
+        self.auto_start_detection_var.set(defaults.auto_start_detection)
         self.frameskip_slider.set(defaults.frame_skip)
         self.language_var.set(self._lang_options[0])  # Auto
 
@@ -313,6 +330,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.settings.fullscreen_alert = self.fullscreen_alert_var.get()
         self.settings.auto_start = self.auto_start_var.get()
         self.settings.start_minimized = self.start_minimized_var.get()
+        self.settings.auto_start_detection = self.auto_start_detection_var.get()
         self.settings.frame_skip = int(self.frameskip_slider.get())
 
         # Update language setting

@@ -101,11 +101,18 @@ class ProximityAnalyzer:
                     self._cooldown_start_time = None
                 else:
                     remaining = self.cooldown_time - elapsed
+                    # Still check if hand is near head during cooldown
+                    # (for UI to know whether to keep alert showing)
+                    is_near = False
+                    closest_dist = 1.0
+                    if head is not None and hands:
+                        closest_dist = self._calculate_closest_distance(hands, head)
+                        is_near = closest_dist < self.distance_threshold
                     return AnalysisResult(
                         state=AlertState.COOLDOWN,
-                        is_hand_near_head=False,
+                        is_hand_near_head=is_near,
                         proximity_duration=0,
-                        closest_distance=1.0,
+                        closest_distance=closest_dist,
                         time_until_alert=0,
                         message=t('analyzer_cooldown').replace("{remaining:.1f}", f"{remaining:.1f}")
                     )

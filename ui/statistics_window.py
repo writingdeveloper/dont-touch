@@ -2,10 +2,14 @@
 import customtkinter as ctk
 from datetime import datetime, timedelta
 import calendar
+from pathlib import Path
 from typing import Optional, Dict, Callable
 
 from utils.statistics import StatisticsManager, DailyStats
 from utils.i18n import t
+
+# Path to the app icon
+APP_ICON_PATH = Path(__file__).parent.parent / "assets" / "icon.ico"
 
 
 class SummaryCard(ctk.CTkFrame):
@@ -149,10 +153,9 @@ class CalendarWidget(ctk.CTkFrame):
                 self.calendar_frame,
                 text=day,
                 font=ctk.CTkFont(size=11, weight="bold"),
-                text_color=text_color,
-                width=44
+                text_color=text_color
             )
-            label.grid(row=0, column=i, pady=(0, 8))
+            label.grid(row=0, column=i, pady=(0, 8), sticky="ew")
 
         # Get touch data for this month
         touch_data = self.stats_manager.get_monthly_calendar(self.current_year, self.current_month)
@@ -511,6 +514,10 @@ class StatisticsWindow(ctk.CTkToplevel):
         self.geometry("700x750")
         self.minsize(650, 600)
 
+        # Set window icon
+        if APP_ICON_PATH.exists():
+            self.after(200, lambda: self.iconbitmap(str(APP_ICON_PATH)))
+
         # Make modal
         self.transient(parent)
         self.grab_set()
@@ -533,48 +540,35 @@ class StatisticsWindow(ctk.CTkToplevel):
         main_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
         main_frame.grid(row=0, column=0, sticky="nsew", padx=15, pady=15)
         main_frame.grid_columnconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(1, weight=1)
 
         # ========== Summary Cards (Top Row) ==========
         self._create_summary_section(main_frame)
 
-        # ========== Two Column Layout ==========
-        # Left column: Calendar
-        left_col = ctk.CTkFrame(main_frame, fg_color="transparent")
-        left_col.grid(row=2, column=0, sticky="nsew", padx=(0, 8), pady=(15, 0))
-        left_col.grid_columnconfigure(0, weight=1)
-
+        # ========== Calendar (Full Width) ==========
         self.calendar = CalendarWidget(
-            left_col,
+            main_frame,
             self.stats_manager,
             on_date_select=self._on_date_select
         )
-        self.calendar.pack(fill="both", expand=True)
-
-        # Right column: Daily detail + Hourly chart
-        right_col = ctk.CTkFrame(main_frame, fg_color="transparent")
-        right_col.grid(row=2, column=1, sticky="nsew", padx=(8, 0), pady=(15, 0))
-        right_col.grid_columnconfigure(0, weight=1)
-
-        # Daily detail
-        self.daily_detail = DailyDetailWidget(right_col, self.stats_manager)
-        self.daily_detail.pack(fill="x", pady=(0, 10))
-
-        # Hourly chart
-        self.hourly_chart = HourlyChartWidget(right_col, self.stats_manager)
-        self.hourly_chart.pack(fill="x")
+        self.calendar.grid(row=1, column=0, sticky="ew", pady=(15, 0))
 
         # ========== Legend ==========
         legend_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
-        legend_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(15, 0))
-
+        legend_frame.grid(row=2, column=0, sticky="ew", pady=(10, 0))
         self._create_legend(legend_frame)
+
+        # ========== Daily Detail ==========
+        self.daily_detail = DailyDetailWidget(main_frame, self.stats_manager)
+        self.daily_detail.grid(row=3, column=0, sticky="ew", pady=(15, 0))
+
+        # ========== Hourly Chart ==========
+        self.hourly_chart = HourlyChartWidget(main_frame, self.stats_manager)
+        self.hourly_chart.grid(row=4, column=0, sticky="ew", pady=(15, 0))
 
         # Close button
         close_btn = ctk.CTkButton(
             self,
             text=t('stats_close'),
-            width=120,
             height=36,
             corner_radius=18,
             command=self.destroy
@@ -590,7 +584,7 @@ class StatisticsWindow(ctk.CTkToplevel):
 
         # Summary cards container
         summary_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        summary_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 5))
+        summary_frame.grid(row=0, column=0, sticky="ew", pady=(0, 5))
         summary_frame.grid_columnconfigure((0, 1, 2), weight=1)
 
         # Total touches card

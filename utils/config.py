@@ -17,16 +17,17 @@ class AppConfig:
     # Alert settings
     sound_enabled: bool = True
     popup_enabled: bool = True
-    fullscreen_alert: bool = False  # Fullscreen alert for stronger feedback
+    fullscreen_alert: bool = True  # Fullscreen alert for stronger feedback
 
     # App settings
     auto_start: bool = False
     start_minimized: bool = False
+    auto_start_detection: bool = False  # Automatically start detection when app launches
     frame_skip: int = 2  # Process every Nth frame for performance
 
     # Window settings
-    window_width: int = 800
-    window_height: int = 600
+    window_width: int = 1050
+    window_height: int = 700
 
     # Language settings
     language: str = ""  # Empty string means auto-detect from system

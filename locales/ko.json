@@ -35,6 +35,7 @@
   "alert_subtitle": "손을 내려주세요",
   "alert_message": "손이 머리 근처에 있습니다!",
   "fullscreen_alert_dismiss": "클릭하거나 아무 키나 눌러서 닫기",
+  "fullscreen_alert_move_hand": "⚠️ 먼저 손을 얼굴에서 떼주세요!",
 
   "analyzer_cooldown": "대기 중... ({remaining:.1f}초)",
   "analyzer_no_face": "얼굴을 감지할 수 없습니다",
@@ -55,6 +56,7 @@
   "settings_app": "앱 설정",
   "settings_autostart": "Windows 시작 시 자동 실행",
   "settings_start_minimized": "최소화 상태로 시작",
+  "settings_auto_start_detection": "앱 시작 시 자동으로 감지 시작",
   "settings_frame_skip": "프레임 스킵:",
   "settings_frame_skip_help": "(높을수록 CPU 사용량 감소, 반응 속도 저하)",
   "settings_language": "언어 설정",
@@ -112,7 +114,10 @@
   "day_sat": "토",
 
   "preview_label": "미리보기",
-  "preview_off_message": "📷 미리보기 꺼짐\n(감지는 계속 동작 중)",
+  "preview_off_status": "감지 활성화됨",
+  "preview_off_message": "미리보기가 꺼져 있습니다",
+  "preview_off_hint": "CPU 사용량을 줄이기 위해 화면을 끕니다.\n감지는 백그라운드에서 정상 작동합니다.",
+  "preview_tooltip": "💡 미리보기 끄기\n\n카메라 화면만 숨기고 감지는 계속됩니다.\nCPU 사용량을 줄여 노트북 배터리를\n절약하거나 다른 작업 시 유용합니다.",
 
   "about_title": "정보",
   "about_version": "버전",
@@ -130,6 +135,13 @@
   "about_links_title": "링크",
   "about_github": "GitHub",
   "about_report_issue": "문제 신고",
+  "about_privacy_title": "개인정보 보호",
+  "about_privacy_notice": "본 애플리케이션은 사용자의 개인정보를 보호합니다.",
+  "about_privacy_1": "카메라 영상은 기기 내에서만 실시간 처리되며, 저장되거나 외부로 전송되지 않습니다.",
+  "about_privacy_2": "개인 식별 정보, 영상 데이터, 또는 사용자 데이터를 수집하지 않습니다.",
+  "about_privacy_3": "모든 통계 데이터는 사용자 기기에만 로컬로 저장됩니다.",
+  "about_privacy_4": "인터넷 연결은 업데이트 확인에만 사용됩니다(선택 사항).",
+
   "about_license_title": "라이선스",
   "about_license": "이 프로젝트는 MIT 라이선스 하에 배포됩니다.",
   "about_copyright": "© 2024 Don't Touch. All rights reserved.",
@@ -142,5 +154,20 @@
   "update_check_failed": "업데이트 확인 실패",
   "update_new_version": "새 버전 사용 가능: {version}",
   "update_up_to_date": "최신 버전입니다",
-  "update_download": "다운로드"
+  "update_download": "다운로드",
+
+  "loading_message": "로딩 중...",
+  "loading_step_init": "초기화 중...",
+  "loading_step_config": "설정 불러오는 중...",
+  "loading_step_camera": "카메라 모듈 준비 중...",
+  "loading_step_ai": "AI 모델 로딩 중...",
+  "loading_step_ui": "인터페이스 구성 중...",
+  "loading_step_ready": "준비 완료!",
+  "loading_step_complete": "시작합니다!",
+
+  "close_dialog_title": "종료 확인",
+  "close_dialog_message": "창을 어떻게 처리하시겠습니까?",
+  "close_dialog_minimize": "최소화",
+  "close_dialog_exit": "종료",
+  "close_dialog_cancel": "취소"
 }

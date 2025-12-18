@@ -3,17 +3,37 @@
 
 import sys
 from pathlib import Path
+import importlib.util
 
 block_cipher = None
 
 # Get the project root directory
 project_root = Path(SPECPATH)
 
+# Find package location
+def get_package_path(package_name):
+    spec = importlib.util.find_spec(package_name)
+    if spec and spec.origin:
+        return Path(spec.origin).parent
+    return None
+
+customtkinter_path = get_package_path('customtkinter')
+darkdetect_path = get_package_path('darkdetect')
+mediapipe_path = get_package_path('mediapipe')
+
 # Data files to include
 datas = [
     (str(project_root / 'assets'), 'assets'),
     (str(project_root / 'locales'), 'locales'),
 ]
+
+# Add package data files
+if customtkinter_path:
+    datas.append((str(customtkinter_path), 'customtkinter'))
+if darkdetect_path:
+    datas.append((str(darkdetect_path), 'darkdetect'))
+if mediapipe_path:
+    datas.append((str(mediapipe_path), 'mediapipe'))
 
 # Hidden imports for MediaPipe and other dependencies
 hiddenimports = [
@@ -29,8 +49,11 @@ hiddenimports = [
     'PIL.ImageTk',
     'PIL.ImageDraw',
     'customtkinter',
+    'darkdetect',
     'pystray',
     'pystray._win32',
+    'tkinter',
+    'tkinter.ttk',
 ]
 
 a = Analysis(

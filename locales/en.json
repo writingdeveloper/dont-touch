@@ -35,6 +35,7 @@
   "alert_subtitle": "Please move your hand away",
   "alert_message": "Hand is near your head!",
   "fullscreen_alert_dismiss": "Click or press any key to dismiss",
+  "fullscreen_alert_move_hand": "⚠️ Move your hand away from face first!",
 
   "analyzer_cooldown": "Cooldown... ({remaining:.1f}s)",
   "analyzer_no_face": "Cannot detect face",
@@ -55,6 +56,7 @@
   "settings_app": "App Settings",
   "settings_autostart": "Auto-start with Windows",
   "settings_start_minimized": "Start Minimized",
+  "settings_auto_start_detection": "Auto-start detection on app launch",
   "settings_frame_skip": "Frame Skip:",
   "settings_frame_skip_help": "(Higher = less CPU, slower response)",
   "settings_language": "Language Settings",
@@ -112,7 +114,10 @@
   "day_sat": "Sat",
 
   "preview_label": "Preview",
-  "preview_off_message": "📷 Preview Off\n(Detection still running)",
+  "preview_off_status": "Detection Active",
+  "preview_off_message": "Preview is turned off",
+  "preview_off_hint": "Display is disabled to reduce CPU usage.\nDetection continues running in the background.",
+  "preview_tooltip": "💡 Toggle Preview\n\nHide camera display while detection continues.\nUseful for saving laptop battery or\nwhen working on other tasks.",
 
   "about_title": "About",
   "about_version": "Version",
@@ -130,6 +135,13 @@
   "about_links_title": "Links",
   "about_github": "GitHub",
   "about_report_issue": "Report Issue",
+  "about_privacy_title": "Privacy",
+  "about_privacy_notice": "This application respects your privacy.",
+  "about_privacy_1": "Camera footage is processed locally in real-time only and is never stored or transmitted.",
+  "about_privacy_2": "No personal information, video data, or user data is collected.",
+  "about_privacy_3": "All statistics are stored locally on your device only.",
+  "about_privacy_4": "Internet connection is only used for update checks (optional).",
+
   "about_license_title": "License",
   "about_license": "This project is distributed under the MIT License.",
   "about_copyright": "© 2024 Don't Touch. All rights reserved.",
@@ -142,5 +154,20 @@
   "update_check_failed": "Update check failed",
   "update_new_version": "New version available: {version}",
   "update_up_to_date": "You're up to date",
-  "update_download": "Download"
+  "update_download": "Download",
+
+  "loading_message": "Loading...",
+  "loading_step_init": "Initializing...",
+  "loading_step_config": "Loading configuration...",
+  "loading_step_camera": "Preparing camera module...",
+  "loading_step_ai": "Loading AI models...",
+  "loading_step_ui": "Building interface...",
+  "loading_step_ready": "Almost ready!",
+  "loading_step_complete": "Launching!",
+
+  "close_dialog_title": "Close Confirmation",
+  "close_dialog_message": "What would you like to do?",
+  "close_dialog_minimize": "Minimize",
+  "close_dialog_exit": "Exit",
+  "close_dialog_cancel": "Cancel"
 }

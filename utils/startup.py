@@ -8,20 +8,20 @@ from pathlib import Path
 class StartupManager:
     """Manages Windows startup registration."""
 
-    APP_NAME = "DontTouch"
+    APP_NAME = "Don't Touch"
     REGISTRY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
     @classmethod
     def get_executable_path(cls) -> str:
-        """Get the path to the executable or script."""
+        """Get the path to the executable or script with --minimized flag."""
         if getattr(sys, 'frozen', False):
             # Running as compiled executable (PyInstaller)
-            return sys.executable
+            return f'"{sys.executable}" --minimized'
         else:
             # Running as Python script
             main_script = Path(__file__).parent.parent / "main.py"
             python_exe = sys.executable
-            return f'"{python_exe}" "{main_script}"'
+            return f'"{python_exe}" "{main_script}" --minimized'
 
     @classmethod
     def is_registered(cls) -> bool:

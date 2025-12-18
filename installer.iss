@@ -121,13 +121,18 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchAfterInstall}"; Flags
 // Check if app is running before install/uninstall
 function IsAppRunning(): Boolean;
 var
-  ResultCode: Integer;
+  WMIService: Variant;
+  ProcessList: Variant;
 begin
   Result := False;
-  if Exec('tasklist', '/FI "IMAGENAME eq {#MyAppExeName}" /NH', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-  begin
-    // If tasklist finds the process, it returns specific output
-    Result := ResultCode = 0;
+  try
+    WMIService := CreateOleObject('WbemScripting.SWbemLocator');
+    WMIService := WMIService.ConnectServer('.', 'root\cimv2');
+    ProcessList := WMIService.ExecQuery('SELECT * FROM Win32_Process WHERE Name = ''{#MyAppExeName}''');
+    Result := (ProcessList.Count > 0);
+  except
+    // If WMI fails, assume not running
+    Result := False;
   end;
 end;
 

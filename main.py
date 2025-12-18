@@ -6,6 +6,22 @@ Main entry point for the application.
 """
 import sys
 import os
+import argparse
+import time
+import threading
+
+# Enable DPI awareness on Windows for correct screen positioning
+if sys.platform == 'win32':
+    try:
+        import ctypes
+        # Per-monitor DPI aware (Windows 8.1+)
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except Exception:
+        try:
+            # System DPI aware fallback (Windows Vista+)
+            ctypes.windll.user32.SetProcessDPIAware()
+        except Exception:
+            pass
 
 # Add project root to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -17,13 +33,23 @@ from utils.updater import check_for_updates_async, UpdateInfo, open_download_pag
 from ui import MainWindow, SystemTray, SettingsWindow
 from ui.statistics_window import StatisticsWindow
 from ui.about_window import AboutWindow
+from ui.loading_window import LoadingWindow
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Don't Touch - Face Touch Detection")
+    parser.add_argument('--minimized', action='store_true',
+                        help='Start minimized to system tray')
+    return parser.parse_args()
 
 
 class Application:
     """Main application controller."""
 
-    def __init__(self):
+    def __init__(self, start_minimized: bool = False):
         self.config = Config()
+        self.start_minimized = start_minimized
 
         # Initialize language based on saved preference or system language
         init_language(self.config.settings.language)
@@ -36,9 +62,32 @@ class Application:
         self.settings_window = None
         self.statistics_window = None
         self.about_window = None
+        self.loading_window = None
+        self._loading_start_time = None
+        self._app_ready = False
 
     def run(self) -> None:
         """Run the application."""
+        # Show loading window first (only if not starting minimized)
+        if not self.start_minimized:
+            self.loading_window = LoadingWindow()
+            self._loading_start_time = time.time()
+            self.loading_window.update()
+
+            # Start app initialization in background thread
+            init_thread = threading.Thread(target=self._initialize_app, daemon=True)
+            init_thread.start()
+
+            # Run loading window event loop until app is ready
+            self._run_loading_loop()
+
+            # Destroy loading window before showing main window
+            self.loading_window.destroy()
+            self.loading_window = None
+        else:
+            # Initialize directly if starting minimized
+            self._initialize_app_sync()
+
         # Create main window
         self.main_window = MainWindow(self.config)
 
@@ -59,17 +108,108 @@ class Application:
         # Connect statistics logging callback
         self.main_window.analyzer.set_statistics_callback(self._log_touch_event)
 
-        # Start minimized if configured
-        if self.config.settings.start_minimized:
+        # Set close dialog callback
+        self.main_window.set_on_close_request(self._on_close_request)
+
+        # Start minimized if --minimized flag is passed (startup)
+        if self.start_minimized:
             self.main_window.withdraw()
         else:
             self.main_window.deiconify()
+            # Bring main window to front after loading
+            self.main_window.lift()
+            self.main_window.attributes("-topmost", True)
+            self.main_window.after(100, lambda: self.main_window.attributes("-topmost", False))
+            self.main_window.focus_force()
 
         # Check for updates in background (after window is ready)
         self.main_window.after(2000, self._check_for_updates)
 
+        # Auto-start detection if enabled
+        if self.config.settings.auto_start_detection:
+            self.main_window.after(500, self._auto_start_detection)
+
         # Run main loop
         self.main_window.mainloop()
+
+    def _initialize_app(self) -> None:
+        """Initialize app components in background thread."""
+        # Step 1: Config (already done in __init__)
+        self._loading_step = 1
+        time.sleep(0.3)
+
+        # Step 2: Camera module
+        self._loading_step = 2
+        try:
+            import cv2
+        except Exception:
+            pass
+        time.sleep(0.3)
+
+        # Step 3: AI modules
+        self._loading_step = 3
+        try:
+            import mediapipe
+            from detector import HandTracker, PoseTracker, ProximityAnalyzer
+        except Exception:
+            pass
+        time.sleep(0.3)
+
+        # Step 4: UI modules
+        self._loading_step = 4
+        try:
+            import customtkinter
+            from PIL import Image
+        except Exception:
+            pass
+        time.sleep(0.3)
+
+        # Step 5: Ready
+        self._loading_step = 5
+
+        # Mark initialization as complete
+        self._app_ready = True
+
+    def _initialize_app_sync(self) -> None:
+        """Initialize app synchronously (for minimized startup)."""
+        # Quick init without delays
+        try:
+            import cv2
+            import mediapipe
+            from detector import HandTracker, PoseTracker, ProximityAnalyzer
+        except Exception:
+            pass
+        self._app_ready = True
+
+    def _run_loading_loop(self) -> None:
+        """Run the loading window event loop until app is ready and minimum time passed."""
+        MIN_LOADING_TIME = 5.0  # Minimum 5 seconds
+        self._loading_step = 0
+        last_step = -1
+
+        while True:
+            # Update loading step display
+            if hasattr(self, '_loading_step') and self._loading_step != last_step:
+                last_step = self._loading_step
+                self.loading_window.set_step(self._loading_step)
+
+            # Update loading window
+            try:
+                self.loading_window.update()
+            except Exception:
+                break
+
+            # Check if minimum time has passed and app is ready
+            elapsed = time.time() - self._loading_start_time
+            if elapsed >= MIN_LOADING_TIME and self._app_ready:
+                # Show complete state briefly
+                self.loading_window.complete()
+                self.loading_window.update()
+                time.sleep(0.3)
+                break
+
+            # Small sleep to prevent CPU spinning
+            time.sleep(0.016)  # ~60fps
 
     def _show_window(self) -> None:
         """Show main window from tray."""
@@ -77,11 +217,11 @@ class Application:
             self.main_window.show_window()
 
     def _quit_app(self) -> None:
-        """Quit the application."""
+        """Quit the application (from tray menu - no dialog)."""
         if self.system_tray:
             self.system_tray.stop()
         if self.main_window:
-            self.main_window._on_close()
+            self.main_window._force_close()
 
     def _toggle_monitoring(self) -> None:
         """Toggle monitoring from tray."""
@@ -89,6 +229,13 @@ class Application:
             self.main_window._toggle_monitoring()
             is_running = self.main_window._is_running
             self.system_tray.set_monitoring_state(is_running)
+
+    def _auto_start_detection(self) -> None:
+        """Auto-start detection when app launches."""
+        if self.main_window and not self.main_window._is_running:
+            self.main_window._start_monitoring()
+            if self.system_tray:
+                self.system_tray.set_monitoring_state(True)
 
     def _on_minimize(self) -> None:
         """Handle minimize to tray."""
@@ -167,6 +314,16 @@ class Application:
         if self.system_tray:
             self.system_tray.update_language()
 
+    def _on_close_request(self) -> str:
+        """Handle close button request - show dialog to choose minimize or exit.
+
+        Returns:
+            'minimize' to minimize to tray, 'exit' to quit, 'cancel' to cancel
+        """
+        from ui.close_dialog import CloseDialog
+        dialog = CloseDialog(self.main_window)
+        return dialog.get_result()
+
     def _check_for_updates(self) -> None:
         """Check for updates in background."""
         check_for_updates_async(self._on_update_check_complete)
@@ -199,7 +356,8 @@ class Application:
 
 def main():
     """Main entry point."""
-    app = Application()
+    args = parse_args()
+    app = Application(start_minimized=args.minimized)
     app.run()
 
 
