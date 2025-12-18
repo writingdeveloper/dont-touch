@@ -39,7 +39,20 @@ Don't Touch 是一款帮助矫正无意识触摸或拔头发习惯（拔毛症/�
 - 通过控制面板轻松卸载
 - 自动更新通知
 
-> ⚠️ 可能会出现 Windows SmartScreen 警告。点击"更多信息"→"仍要运行"。
+> ⚠️ **Windows 安全警告**
+>
+> 由于此应用尚未进行代码签名，Windows 可能会显示安全警告：
+>
+> **Windows SmartScreen:**
+> 1. 点击"更多信息"
+> 2. 点击"仍要运行"
+>
+> **Windows 11 Smart App Control:**
+> - 如果 Smart App Control 处于"评估"或"开启"模式，应用可能会被阻止
+> - 临时禁用：设置 → 隐私和安全性 → Windows 安全中心 → 应用和浏览器控制 → Smart App Control → 关闭
+> - 安装后可重新启用
+>
+> 🔐 **即将支持代码签名**：我们计划在未来版本中通过 [SignPath](https://signpath.io) 实现开源项目代码签名，以消除这些警告。
 
 ### 系统要求
 

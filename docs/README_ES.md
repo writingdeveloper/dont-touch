@@ -39,7 +39,20 @@ Utilizando tu webcam, rastrea los movimientos de las manos en tiempo real y te a
 - Desinstalación fácil desde el Panel de Control
 - Notificaciones automáticas de actualizaciones
 
-> ⚠️ Puede aparecer una advertencia de Windows SmartScreen. Haz clic en "Más información" → "Ejecutar de todos modos".
+> ⚠️ **Advertencia de Seguridad de Windows**
+>
+> Dado que esta aplicación aún no está firmada digitalmente, Windows puede mostrar una advertencia de seguridad:
+>
+> **Windows SmartScreen:**
+> 1. Haz clic en "Más información"
+> 2. Haz clic en "Ejecutar de todos modos"
+>
+> **Windows 11 Smart App Control:**
+> - Si Smart App Control está en modo "Evaluación" u "Activado", la aplicación puede ser bloqueada
+> - Desactivar temporalmente: Configuración → Privacidad y seguridad → Seguridad de Windows → Control de aplicaciones y navegador → Smart App Control → Desactivado
+> - Puedes reactivarlo después de la instalación
+>
+> 🔐 **Firma de Código Próximamente**: Planeamos implementar la firma de código a través de [SignPath](https://signpath.io) para proyectos de código abierto para eliminar estas advertencias en futuras versiones.
 
 ### Requisitos
 
